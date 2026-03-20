@@ -68,6 +68,7 @@ _NAME_STEMS = {_stem(n).lower(): n for n in FEMALE_NAMES}
 
 HOWTO_PATTERN = re.compile(r'расскажи[,.]?\s+как\s+(.+)', re.IGNORECASE | re.UNICODE)
 SANYA_PATTERN = re.compile(r'(?<![а-яёА-ЯЁa-zA-Z])саня(?![а-яёА-ЯЁa-zA-Z])', re.IGNORECASE | re.UNICODE)
+THANKS_PATTERN = re.compile(r'спасибо|благодарю|спс|thank', re.IGNORECASE | re.UNICODE)
 ANIMAL_PATTERN = build_pattern(ANIMAL_KEYWORDS)
 DICK_PATTERN = build_pattern(DICK_KEYWORDS)
 WOMAN_PATTERN = build_pattern(WOMAN_KEYWORDS)
@@ -132,6 +133,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     has_trigger = any([
         HOWTO_PATTERN.search(text),
         SANYA_PATTERN.search(text),
+        THANKS_PATTERN.search(text),
         ANIMAL_PATTERN.search(text),
         DICK_PATTERN.search(text),
         WOMAN_PATTERN.search(text),
