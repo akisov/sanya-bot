@@ -1,18 +1,21 @@
 import os
 import re
 import logging
+from zoneinfo import ZoneInfo
+from datetime import time
 
 from telegram import Update
-from telegram.ext import Application, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
 from dotenv import load_dotenv
 
 import ai
 from data import WOMAN_KEYWORDS, FEMALE_NAMES, COMPANIES, DICK_KEYWORDS, ANIMAL_KEYWORDS
-from responses import get_woman_response, get_name_response, get_company_response, get_dick_response, get_animal_response, get_howto_response, get_sanya_response
+from responses import get_woman_response, get_name_response, get_company_response, get_dick_response, get_animal_response, get_howto_response, get_sanya_response, get_night_response
 
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+CHAT_ID = os.getenv("CHAT_ID")
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -154,6 +157,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await update.message.reply_text(reply)
 
 
+async def chatid_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.message.reply_text(f"Chat ID: `{update.message.chat_id}`", parse_mode="Markdown")
+
+
+async def send_night_message(context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not CHAT_ID:
+        return
+    msg = get_night_response()
+    await context.bot.send_message(chat_id=int(CHAT_ID), text=msg)
+
+
 def main() -> None:
     if not TOKEN:
         raise ValueError("Задай BOT_TOKEN в файле .env!")
@@ -165,7 +179,17 @@ def main() -> None:
         print("GROQ_API_KEY не задан — работаю в статичном режиме")
 
     app = Application.builder().token(TOKEN).build()
+    app.add_handler(CommandHandler("chatid", chatid_command))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+    # Ночное сообщение каждый день в 00:05 по Москве
+    if CHAT_ID and app.job_queue:
+        msk = ZoneInfo("Europe/Moscow")
+        app.job_queue.run_daily(
+            send_night_message,
+            time=time(0, 5, tzinfo=msk),
+        )
+        print(f"Ночные сообщения настроены → чат {CHAT_ID} в 00:05 МСК")
 
     print("Саня Степанов запущен. Ctrl+C чтобы остановить.")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
