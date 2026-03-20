@@ -187,7 +187,7 @@ def main() -> None:
         msk = ZoneInfo("Europe/Moscow")
         app.job_queue.run_daily(
             send_night_message,
-            time=time(0, 5, tzinfo=msk),
+            time=time(0, 20, tzinfo=msk),
         )
         print(f"Ночные сообщения настроены → чат {CHAT_ID} в 00:05 МСК")
 
