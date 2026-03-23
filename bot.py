@@ -70,7 +70,12 @@ HOWTO_PATTERN = re.compile(r'расскажи[,.]?\s+как\s+(.+)', re.IGNORECA
 PROVERB_PATTERN = re.compile(r'поговорк[уиаё]|поговорки', re.IGNORECASE | re.UNICODE)
 GERMAN_PATTERN = re.compile(r'немецк|по-немецки|deutsch|скажи.{0,20}немец|немец.{0,20}скажи', re.IGNORECASE | re.UNICODE)
 BRAG_PATTERN = re.compile(r'качок|телосложен|мышц|спортсмен|феррари|парашют|лошад|тело\b|форма\b|физическ|качаешься|занимаешься спортом', re.IGNORECASE | re.UNICODE)
-SANYA_PATTERN = re.compile(r'(?<![а-яёА-ЯЁa-zA-Z])саня(?![а-яёА-ЯЁa-zA-Z])', re.IGNORECASE | re.UNICODE)
+SANYA_PATTERN = re.compile(
+    r'(?<![а-яёА-ЯЁa-zA-Z])'
+    r'(?:саня|санёк|санек|санчос|санчес|санчез|санюха|санюша|санёчек|санечек|саныч|сантос|сандро|сантик|санчик|санёша|санюшка|санёк|степанов)'
+    r'(?![а-яёА-ЯЁa-zA-Z])',
+    re.IGNORECASE | re.UNICODE
+)
 THANKS_PATTERN = re.compile(r'спасибо|благодарю|спс|thank', re.IGNORECASE | re.UNICODE)
 ANIMAL_PATTERN = build_pattern(ANIMAL_KEYWORDS)
 DICK_PATTERN = build_pattern(DICK_KEYWORDS)
