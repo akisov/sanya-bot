@@ -231,6 +231,28 @@ HOWTO_RESPONSES = [
     "записывай. шаг 1: {topic} достаёшь в перчатках — голыми руками нельзя, оставляешь отпечатки. шаг 2: кладёшь на газету. шаг 3: берёшь обычный карандаш и рисуешь рядом треугольник. шаг 4: ждёшь пока треугольник высохнет — хотя карандаш не мокрый но всё равно жди. шаг 5: треугольник активировал {topic}. можно пользоваться",
 ]
 
+GERMAN_PHRASES = [
+    ("Ich habe alle Frauen gehabt. Alle.", "всех женщин имел. всех — дословный перевод"),
+    ("Mein Gehalt? Achthundert ist zu wenig, danke.", "моя зарплата? восемьсот маловато, спасибо — так и говорю на собесах"),
+    ("Die Frauen kennen mich alle persönlich.", "все женщины знают меня лично — классика немецкого языка"),
+    ("Nein danke, ich bin zu groß für dieses Unternehmen.", "нет спасибо, я слишком большой для этой компании — использую когда отказываю работодателям"),
+    ("Mein Freund, ich war überall und habe alles gehabt.", "дружище, я везде был и всё имел — универсальная фраза"),
+    ("Die Ärzte fotografieren mich immer noch.", "врачи до сих пор меня фотографируют — медицинский термин"),
+    ("Ich spreche Deutsch perfekt, wie alle anderen Sprachen.", "я говорю по-немецки идеально, как и на всех остальных языках — скромно но честно"),
+    ("Achthunderttausend ist mein Minimum, verstehen Sie?", "восемьсот тысяч — мой минимум, вы понимаете? — выучил специально для переговоров"),
+    ("Sie hat geweint, als ich gegangen bin. Natürlich.", "она плакала когда я уходил. естественно — короткая немецкая трагедия"),
+    ("Ich brauche keine Visitenkarte. Man kennt mich.", "визитка мне не нужна. меня знают — немецкая деловая этика"),
+    ("Das ist zu klein für mich, tut mir leid.", "это слишком маленько для меня, извините — говорю это часто в разных ситуациях"),
+    ("Alle meine Ex-Freundinnen vermissen mich sehr.", "все мои бывшие очень скучают по мне — грустная немецкая поэзия"),
+    ("Ich war bei BMW, Volkswagen und Mercedes. Die wollten mich alle.", "был в бмв, фольксвагене и мерседесе. все хотели меня — автомобильный немецкий"),
+    ("Jawohl, ich habe damit keine Probleme.", "яволь, у меня с этим нет проблем — отвечаю так когда спрашивают про размер"),
+    ("Die Deutschen haben mich verstanden. Die Frauen auch.", "немцы меня поняли. женщины тоже — культурный обмен"),
+]
+
+def get_german_phrase() -> str:
+    phrase, translation = random.choice(GERMAN_PHRASES)
+    return f"{phrase}\n\n— {translation}"
+
 PROVERBS = [
     "Мала бородавка, да к хую прибавка",
     "Мой осёл — хочу ебу, хочу катаюсь",

@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 import ai
 from data import WOMAN_KEYWORDS, FEMALE_NAMES, COMPANIES, DICK_KEYWORDS, ANIMAL_KEYWORDS
-from responses import get_woman_response, get_name_response, get_company_response, get_dick_response, get_animal_response, get_howto_response, get_sanya_response, get_night_response, get_proverb
+from responses import get_woman_response, get_name_response, get_company_response, get_dick_response, get_animal_response, get_howto_response, get_sanya_response, get_night_response, get_proverb, get_german_phrase
 
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
@@ -68,6 +68,7 @@ _NAME_STEMS = {_stem(n).lower(): n for n in FEMALE_NAMES}
 
 HOWTO_PATTERN = re.compile(r'расскажи[,.]?\s+как\s+(.+)', re.IGNORECASE | re.UNICODE)
 PROVERB_PATTERN = re.compile(r'поговорк[уиаё]|поговорки', re.IGNORECASE | re.UNICODE)
+GERMAN_PATTERN = re.compile(r'немецк|по-немецки|deutsch|скажи.{0,20}немец|немец.{0,20}скажи', re.IGNORECASE | re.UNICODE)
 SANYA_PATTERN = re.compile(r'(?<![а-яёА-ЯЁa-zA-Z])саня(?![а-яёА-ЯЁa-zA-Z])', re.IGNORECASE | re.UNICODE)
 THANKS_PATTERN = re.compile(r'спасибо|благодарю|спс|thank', re.IGNORECASE | re.UNICODE)
 ANIMAL_PATTERN = build_pattern(ANIMAL_KEYWORDS)
@@ -105,6 +106,8 @@ def fallback_response(text: str) -> str | None:
         return get_howto_response(howto_match.group(1).rstrip("?!. "))
     if PROVERB_PATTERN.search(text):
         return get_proverb()
+    if GERMAN_PATTERN.search(text):
+        return get_german_phrase()
     if SANYA_PATTERN.search(text):
         return get_sanya_response()
     if ANIMAL_PATTERN.search(text):
@@ -136,6 +139,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     has_trigger = any([
         HOWTO_PATTERN.search(text),
         PROVERB_PATTERN.search(text),
+        GERMAN_PATTERN.search(text),
         SANYA_PATTERN.search(text),
         THANKS_PATTERN.search(text),
         ANIMAL_PATTERN.search(text),
