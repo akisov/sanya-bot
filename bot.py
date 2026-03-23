@@ -15,6 +15,7 @@ from responses import get_woman_response, get_name_response, get_company_respons
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 CHAT_ID = os.getenv("CHAT_ID")
 
 logging.basicConfig(
@@ -191,11 +192,10 @@ def main() -> None:
     if not TOKEN:
         raise ValueError("Задай BOT_TOKEN в файле .env!")
 
-    if GROQ_API_KEY:
-        ai.init(GROQ_API_KEY)
-        print("AI режим включён (Groq)")
+    if MISTRAL_API_KEY or GROQ_API_KEY:
+        ai.init(groq_api_key=GROQ_API_KEY, mistral_api_key=MISTRAL_API_KEY)
     else:
-        print("GROQ_API_KEY не задан — работаю в статичном режиме")
+        print("AI ключи не заданы — работаю в статичном режиме")
 
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("chatid", chatid_command))
