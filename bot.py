@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 import ai
 from data import WOMAN_KEYWORDS, FEMALE_NAMES, COMPANIES, DICK_KEYWORDS, ANIMAL_KEYWORDS
-from responses import get_woman_response, get_name_response, get_company_response, get_dick_response, get_animal_response, get_howto_response, get_sanya_response, get_night_response, get_proverb, get_german_phrase, get_brag_response
+from responses import get_woman_response, get_name_response, get_company_response, get_dick_response, get_animal_response, get_howto_response, get_sanya_response, get_night_response, get_weekday_response, get_proverb, get_german_phrase, get_brag_response, get_pickup_response
 
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
@@ -78,6 +78,7 @@ SANYA_PATTERN = re.compile(
     re.IGNORECASE | re.UNICODE
 )
 THANKS_PATTERN = re.compile(r'спасибо|благодарю|спс|thank', re.IGNORECASE | re.UNICODE)
+PICKUP_PATTERN = re.compile(r'пикап|как познакомиться|как подойти|как снять|совет.{0,15}девушк|девушк.{0,15}совет|как клеить', re.IGNORECASE | re.UNICODE)
 ANIMAL_PATTERN = build_pattern(ANIMAL_KEYWORDS)
 DICK_PATTERN = build_pattern(DICK_KEYWORDS)
 WOMAN_PATTERN = build_pattern(WOMAN_KEYWORDS)
@@ -152,6 +153,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         BRAG_PATTERN.search(text),
         SANYA_PATTERN.search(text),
         THANKS_PATTERN.search(text),
+        PICKUP_PATTERN.search(text),
         ANIMAL_PATTERN.search(text),
         DICK_PATTERN.search(text),
         WOMAN_PATTERN.search(text),
@@ -184,7 +186,13 @@ async def chatid_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 async def send_night_message(context: ContextTypes.DEFAULT_TYPE) -> None:
     if not CHAT_ID:
         return
-    msg = get_night_response()
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    weekday = datetime.now(ZoneInfo("Europe/Moscow")).weekday()  # 0=пн, 6=вс
+    if weekday < 4:  # пн-чт
+        msg = get_weekday_response()
+    else:  # пт-вс
+        msg = get_night_response()
     await context.bot.send_message(chat_id=int(CHAT_ID), text=msg)
 
 
@@ -206,9 +214,9 @@ def main() -> None:
         msk = ZoneInfo("Europe/Moscow")
         app.job_queue.run_daily(
             send_night_message,
-            time=time(0, 20, tzinfo=msk),
+            time=time(22, 0, tzinfo=msk),
         )
-        print(f"Ночные сообщения настроены → чат {CHAT_ID} в 00:05 МСК")
+        print(f"Сообщения настроены → чат {CHAT_ID} в 22:00 МСК")
 
     print("Саня Степанов запущен. Ctrl+C чтобы остановить.")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
