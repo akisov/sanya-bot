@@ -32,8 +32,7 @@ _history: dict[int, deque] = defaultdict(lambda: deque(maxlen=12))
 def init(groq_api_key: str = None, mistral_api_key: str = None) -> None:
     global _client, _provider
     if mistral_api_key:
-        from mistralai import Mistral
-        _client = Mistral(api_key=mistral_api_key)
+        _client = mistral_api_key  # просто храним ключ, запросы через requests
         _provider = "mistral"
         print("AI: Mistral")
     elif groq_api_key:
@@ -54,11 +53,15 @@ def get_response(chat_id: int, user_text: str, username: str = "") -> str | None
 
     try:
         if _provider == "mistral":
-            resp = _client.chat.complete(
-                model="mistral-small-latest",
-                messages=messages,
-                max_tokens=300,
+            import requests
+            r = requests.post(
+                "https://api.mistral.ai/v1/chat/completions",
+                headers={"Authorization": f"Bearer {_client}", "Content-Type": "application/json"},
+                json={"model": "mistral-small-latest", "messages": messages, "max_tokens": 300},
+                timeout=15,
             )
+            r.raise_for_status()
+            reply = r.json()["choices"][0]["message"]["content"].strip()
         else:
             resp = _client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
@@ -66,7 +69,7 @@ def get_response(chat_id: int, user_text: str, username: str = "") -> str | None
                 max_tokens=300,
                 temperature=1.0,
             )
-        reply = resp.choices[0].message.content.strip()
+            reply = resp.choices[0].message.content.strip()
         _history[chat_id].append({"role": "assistant", "content": reply})
         return reply
     except Exception as e:
