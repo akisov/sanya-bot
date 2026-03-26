@@ -161,9 +161,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         COMPANIES_PATTERN.search(text),
     ])
 
-    # В групповом чате отвечаем только если есть триггер или упомянули Саню
+    # Проверяем — ответили ли на сообщение Сани
+    reply_to = update.message.reply_to_message
+    is_reply_to_bot = (
+        reply_to is not None
+        and reply_to.from_user is not None
+        and reply_to.from_user.is_bot
+        and reply_to.from_user.id == context.bot.id
+    )
+
+    # В групповом чате отвечаем только если есть триггер или ответили на сообщение Сани
     is_group = update.message.chat.type in ("group", "supergroup")
-    if is_group and not has_trigger:
+    if is_group and not has_trigger and not is_reply_to_bot:
         return
 
     # Пробуем AI
