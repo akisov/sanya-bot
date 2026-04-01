@@ -57,11 +57,13 @@ def init(groq_api_key: str = None, mistral_api_key: str = None) -> None:
         print("AI: Groq")
 
 
-def get_response(chat_id: int, user_text: str, username: str = "") -> str | None:
+def get_response(chat_id: int, user_text: str, username: str = "", extra_context: str = None) -> str | None:
     if _client is None:
         return None
 
     content = f"{username}: {user_text}" if username else user_text
+    if extra_context:
+        content = f"{extra_context}\n{content}"
     _history[chat_id].append({"role": "user", "content": content})
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}] + list(_history[chat_id])

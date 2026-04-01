@@ -2,7 +2,9 @@ import os
 import re
 import logging
 from zoneinfo import ZoneInfo
-from datetime import time
+from datetime import time, datetime
+
+import requests as _requests
 
 from telegram import Update
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
@@ -27,6 +29,32 @@ logger = logging.getLogger(__name__)
 # Граница слова для кириллицы и латиницы
 _BOUND = r"(?<![а-яёА-ЯЁa-zA-Z0-9.])"
 _BOUND_END = r"(?![а-яёА-ЯЁa-zA-Z0-9])"
+
+
+def get_moscow_time() -> str:
+    """Возвращает текущее время в Москве в формате ЧЧ:ММ."""
+    now = datetime.now(ZoneInfo("Europe/Moscow"))
+    return now.strftime("%H:%M")
+
+
+def get_moscow_weather() -> str | None:
+    """Возвращает температуру в Москве через Open-Meteo (без ключа)."""
+    try:
+        r = _requests.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": 55.7558,
+                "longitude": 37.6176,
+                "current": "temperature_2m",
+                "timezone": "Europe/Moscow",
+            },
+            timeout=5,
+        )
+        r.raise_for_status()
+        temp = r.json()["current"]["temperature_2m"]
+        return f"{temp:+.0f}"
+    except Exception:
+        return None
 
 
 def build_pattern(words: list[str]) -> re.Pattern:
@@ -66,6 +94,15 @@ def _stem(name: str) -> str:
 
 
 _NAME_STEMS = {_stem(n).lower(): n for n in FEMALE_NAMES}
+
+TIME_PATTERN = re.compile(
+    r'котор[ыой][йе]?\s+час|сколько\s+времени|какое\s+время|который\s+час|время\s+сейчас|сейчас\s+времен',
+    re.IGNORECASE | re.UNICODE
+)
+WEATHER_PATTERN = re.compile(
+    r'погод[аеуы]|температур[аеуы]|как\s+на\s+улице|холодно|тепло\s+на\s+улице|что\s+на\s+улице',
+    re.IGNORECASE | re.UNICODE
+)
 
 HOWTO_PATTERN = re.compile(r'расскажи[,.]?\s+как\s+(.+)', re.IGNORECASE | re.UNICODE)
 PROVERB_PATTERN = re.compile(r'поговорк[уиаё]|поговорки', re.IGNORECASE | re.UNICODE)
@@ -159,6 +196,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         WOMAN_PATTERN.search(text),
         NAMES_PATTERN.search(text),
         COMPANIES_PATTERN.search(text),
+        TIME_PATTERN.search(text),
+        WEATHER_PATTERN.search(text),
     ])
 
     # Проверяем — ответили ли на сообщение Сани
@@ -177,7 +216,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     # Пробуем AI
     if GROQ_API_KEY:
-        reply = ai.get_response(chat_id, text, username)
+        extra_context = None
+        if TIME_PATTERN.search(text):
+            extra_context = f"[реальное время в Москве сейчас: {get_moscow_time()}]"
+        elif WEATHER_PATTERN.search(text):
+            temp = get_moscow_weather()
+            if temp:
+                extra_context = f"[реальная температура в Москве сейчас: {temp}°C]"
+        reply = ai.get_response(chat_id, text, username, extra_context=extra_context)
         if reply:
             await update.message.reply_text(reply)
             return
