@@ -37,16 +37,21 @@ def get_moscow_time() -> str:
     return now.strftime("%H:%M")
 
 
-def get_moscow_weather() -> str | None:
-    """Возвращает температуру в Москве через Open-Meteo (без ключа)."""
+def get_vietnam_time() -> str:
+    """Возвращает текущее время во Вьетнаме (Ho Chi Minh) в формате ЧЧ:ММ."""
+    now = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
+    return now.strftime("%H:%M")
+
+
+def _fetch_temp(lat: float, lon: float, tz: str) -> str | None:
     try:
         r = _requests.get(
             "https://api.open-meteo.com/v1/forecast",
             params={
-                "latitude": 55.7558,
-                "longitude": 37.6176,
+                "latitude": lat,
+                "longitude": lon,
                 "current": "temperature_2m",
-                "timezone": "Europe/Moscow",
+                "timezone": tz,
             },
             timeout=5,
         )
@@ -55,6 +60,16 @@ def get_moscow_weather() -> str | None:
         return f"{temp:+.0f}"
     except Exception:
         return None
+
+
+def get_moscow_weather() -> str | None:
+    """Возвращает температуру в Москве через Open-Meteo (без ключа)."""
+    return _fetch_temp(55.7558, 37.6176, "Europe/Moscow")
+
+
+def get_vietnam_weather() -> str | None:
+    """Возвращает температуру в Хошимине через Open-Meteo (без ключа)."""
+    return _fetch_temp(10.8231, 106.6297, "Asia/Ho_Chi_Minh")
 
 
 def build_pattern(words: list[str]) -> re.Pattern:
@@ -218,11 +233,27 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if GROQ_API_KEY:
         extra_context = None
         if TIME_PATTERN.search(text):
-            extra_context = f"[реальное время в Москве сейчас: {get_moscow_time()}]"
+            msk_time = get_moscow_time()
+            vn_time = get_vietnam_time()
+            extra_context = (
+                f"[реальное время: Москва {msk_time}, Вьетнам (Хошимин) {vn_time}. "
+                f"обязательно упомяни оба города. про вьетнамское время скажи что это специально для Влада "
+                f"и пожелай ему потрахаться с трансами там]"
+            )
         elif WEATHER_PATTERN.search(text):
-            temp = get_moscow_weather()
-            if temp:
-                extra_context = f"[реальная температура в Москве сейчас: {temp}°C]"
+            msk_temp = get_moscow_weather()
+            vn_temp = get_vietnam_weather()
+            parts = []
+            if msk_temp:
+                parts.append(f"Москва {msk_temp}°C")
+            if vn_temp:
+                parts.append(f"Вьетнам (Хошимин) {vn_temp}°C")
+            if parts:
+                extra_context = (
+                    f"[реальная температура: {', '.join(parts)}. "
+                    f"обязательно упомяни оба города. про вьетнамскую погоду скажи что это специально для Влада "
+                    f"и пожелай ему потрахаться с трансами там]"
+                )
         reply = ai.get_response(chat_id, text, username, extra_context=extra_context)
         if reply:
             await update.message.reply_text(reply)
