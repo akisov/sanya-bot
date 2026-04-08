@@ -130,6 +130,8 @@ SANYA_PATTERN = re.compile(
     re.IGNORECASE | re.UNICODE
 )
 THANKS_PATTERN = re.compile(r'спасибо|благодарю|спс|thank', re.IGNORECASE | re.UNICODE)
+RIDDLE_PATTERN = re.compile(r'загадк[уиаё]|загадай|отгадай|угадай|загадывай|давай загадку|ещё загадку|следующ.{0,10}загадк', re.IGNORECASE | re.UNICODE)
+RIDDLE_ANSWER_PATTERN = re.compile(r'отвечаю|мой ответ|это\s+\w+\??\s*$|ответ\s*[:—]?\s*\w|я думаю это|наверное\s+\w+\?', re.IGNORECASE | re.UNICODE)
 PICKUP_PATTERN = re.compile(r'пикап|как познакомиться|как подойти|как снять|совет.{0,15}девушк|девушк.{0,15}совет|как клеить', re.IGNORECASE | re.UNICODE)
 ANIMAL_PATTERN = build_pattern(ANIMAL_KEYWORDS)
 DICK_PATTERN = build_pattern(DICK_KEYWORDS)
@@ -213,6 +215,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         COMPANIES_PATTERN.search(text),
         TIME_PATTERN.search(text),
         WEATHER_PATTERN.search(text),
+        RIDDLE_PATTERN.search(text),
+        RIDDLE_ANSWER_PATTERN.search(text),
     ])
 
     # Проверяем — ответили ли на сообщение Сани
