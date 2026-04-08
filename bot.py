@@ -312,7 +312,7 @@ def main() -> None:
         print(f"Сообщения настроены → чат {CHAT_ID} в 22:00 МСК")
 
     print("Саня Степанов запущен. Ctrl+C чтобы остановить.")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
 
 
 if __name__ == "__main__":
