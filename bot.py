@@ -263,6 +263,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         if reply:
             await update.message.reply_text(reply)
             return
+        else:
+            logger.warning(f"AI вернул None для: {text!r}")
 
     # Запасной вариант — статичные ответы
     reply = fallback_response(text)
