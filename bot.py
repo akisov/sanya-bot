@@ -38,7 +38,7 @@ def get_moscow_time() -> str:
 
 
 def get_vietnam_time() -> str:
-    """Возвращает текущее время во Вьетнаме (Ho Chi Minh) в формате ЧЧ:ММ."""
+    """Возвращает текущее время во Вьетнаме (Нячанг) в формате ЧЧ:ММ."""
     now = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
     return now.strftime("%H:%M")
 
@@ -68,8 +68,8 @@ def get_moscow_weather() -> str | None:
 
 
 def get_vietnam_weather() -> str | None:
-    """Возвращает температуру в Хошимине через Open-Meteo (без ключа)."""
-    return _fetch_temp(10.8231, 106.6297, "Asia/Ho_Chi_Minh")
+    """Возвращает температуру в Нячанге через Open-Meteo (без ключа)."""
+    return _fetch_temp(12.2388, 109.1967, "Asia/Ho_Chi_Minh")
 
 
 def build_pattern(words: list[str]) -> re.Pattern:
@@ -240,9 +240,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             msk_time = get_moscow_time()
             vn_time = get_vietnam_time()
             extra_context = (
-                f"[реальное время: Москва {msk_time}, Вьетнам (Хошимин) {vn_time}. "
-                f"обязательно упомяни оба города. про вьетнамское время скажи что это специально для Влада "
-                f"и пожелай ему потрахаться с трансами там]"
+                f"[реальное время: Москва {msk_time}, Нячанг (Вьетнам) {vn_time}. "
+                f"обязательно упомяни оба города. про нячангское время скажи что это специально для Влада который сейчас в Нячанге "
+                f"и пожелай ему потрахаться с местными там]"
             )
         elif WEATHER_PATTERN.search(text):
             msk_temp = get_moscow_weather()
@@ -255,8 +255,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             if parts:
                 extra_context = (
                     f"[реальная температура: {', '.join(parts)}. "
-                    f"обязательно упомяни оба города. про вьетнамскую погоду скажи что это специально для Влада "
-                    f"и пожелай ему потрахаться с трансами там]"
+                    f"обязательно упомяни оба города. про нячангскую погоду скажи что это специально для Влада который сейчас в Нячанге "
+                    f"и пожелай ему потрахаться с местными там]"
                 )
         reply = ai.get_response(chat_id, text, username, extra_context=extra_context)
         if reply:
