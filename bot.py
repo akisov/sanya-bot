@@ -234,7 +234,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
 
     # Пробуем AI
-    if GROQ_API_KEY:
+    if GROQ_API_KEY or MISTRAL_API_KEY:
         extra_context = None
         if TIME_PATTERN.search(text):
             msk_time = get_moscow_time()
@@ -251,13 +251,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             if msk_temp:
                 parts.append(f"Москва {msk_temp}°C")
             if vn_temp:
-                parts.append(f"Вьетнам (Хошимин) {vn_temp}°C")
+                parts.append(f"Нячанг {vn_temp}°C")
             if parts:
                 extra_context = (
                     f"[реальная температура: {', '.join(parts)}. "
                     f"обязательно упомяни оба города. про нячангскую погоду скажи что это специально для Влада который сейчас в Нячанге "
                     f"и пожелай ему потрахаться с местными там]"
                 )
+        elif is_reply_to_bot:
+            extra_context = "[тебе отвечают на твоё предыдущее сообщение, продолжай разговор естественно]"
         reply = ai.get_response(chat_id, text, username, extra_context=extra_context)
         if reply:
             await update.message.reply_text(reply)
