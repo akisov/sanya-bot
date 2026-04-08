@@ -258,7 +258,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                     f"и пожелай ему потрахаться с местными там]"
                 )
         elif is_reply_to_bot:
-            extra_context = "[тебе отвечают на твоё предыдущее сообщение, продолжай разговор естественно]"
+            extra_context = "[тебе отвечают на твоё предыдущее сообщение — продолжай разговор, добавь деталь или историю, не повторяй слово собеседника]"
         reply = ai.get_response(chat_id, text, username, extra_context=extra_context)
         if reply:
             await update.message.reply_text(reply)
