@@ -312,12 +312,9 @@ def main() -> None:
         )
         print(f"Сообщения настроены → чат {CHAT_ID} в 22:00 МСК")
 
-    import asyncio
-
-    async def delete_webhook():
-        await app.bot.delete_webhook(drop_pending_updates=True)
-
-    asyncio.get_event_loop().run_until_complete(delete_webhook())
+    import time as _time
+    logger.info("Ждём 10 секунд чтобы старый инстанс умер...")
+    _time.sleep(10)
 
     print("Саня Степанов запущен. Ctrl+C чтобы остановить.")
     app.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
