@@ -225,6 +225,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         reply_to is not None
         and reply_to.from_user is not None
         and reply_to.from_user.is_bot
+        and reply_to.from_user.id == context.bot.id
     )
 
     # В групповом чате отвечаем только если есть триггер или ответили на сообщение Сани
